@@ -1,10 +1,10 @@
 import os
-from commandsCLI import shRun
+from commandsCLI import shCommand
 
 def greetingString():
         os.system("CLS")
         print('  ------------------------------------------------- ')
-        print("    Welcome to the automated remove ACE program ")
+        print("    Welcome to the automated show commands program ")
         print('  ------------------------------------------------- ')
 
 def menuString(deviceIP, username):
@@ -15,7 +15,7 @@ def menuString(deviceIP, username):
         print('\t\t  Only numbers are accepted')
         print('  -------------------------------------------------------------- ')
         print('  >\t\t1. To run the following commands:\t       <\n')
-        print(f'\t\t\t{shRun}    ')      
+        print(f'\t{shCommand}    ')      
         print('  >\t\t\t2. Exit the program\t\t       <')
         print('  -------------------------------------------------------------- \n')
 

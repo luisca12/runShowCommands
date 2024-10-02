@@ -1,17 +1,14 @@
 from netmiko import ConnectHandler
-from functions import *
-from log import *
-from strings import *
-from auth import *
+from log import authLog
+from functions import failedDevices, logInCSV
 
-import os
 import traceback
-import re
+import os
 
-shRun = "show run"
+shCommand = ""
 shHostname = "show run | i hostname"
 
-def showRun(validIPs, username, netDevice):
+def showCommands(validIPs, username, netDevice, shCommand):
     # This function is to take a show run
     
     for validDeviceIP in validIPs:
@@ -25,37 +22,43 @@ def showRun(validIPs, username, netDevice):
                 'secret': netDevice['secret'],
                 'global_delay_factor': 2.0,
                 'timeout': 120,
-                'session_log': 'netmikoLog.txt',
+                'session_log': 'Outputs/netmikoLog.txt',
                 'verbose': True,
                 'session_log_file_mode': 'append'
             }
 
-            print(f"Connecting to device {validDeviceIP}...")
+            print(f"INFO: Connecting to device {validDeviceIP}...")
+            authLog.info(f"Connecting to device {validDeviceIP}")
             with ConnectHandler(**currentNetDevice) as sshAccess:
-                sshAccess.enable()
-                shHostnameOut = sshAccess.send_command(shHostname)
-                authLog.info(f"User {username} successfully found the hostname {shHostnameOut}")
-                shHostnameOut = shHostnameOut.replace('hostname', '')
-                shHostnameOut = shHostnameOut.strip()
-                shHostnameOut = shHostnameOut + "#"
+                try:
+                    authLog.info(f"Connected to device: {validDeviceIP}")
+                    sshAccess.enable()
+                    shHostnameOut = sshAccess.send_command(shHostname)
+                    authLog.info(f"User {username} successfully found the hostname {shHostnameOut} for device: {validDeviceIP}")
+                    shHostnameOut = shHostnameOut.split(' ')[1]
+                    shHostnameOut = shHostnameOut + "#"
 
-                with open(f"{validDeviceIP}_showRun.txt", "a") as file:
-                    file.write(f"User {username} connected to device IP {validDeviceIP}\n\n")
-                    authLog.info(f"User {username} is now running commands at: {validDeviceIP}")
+                    shCommandOut = sshAccess.send_command(shCommand)
 
-                    print(f"INFO: Taking a {shRun} for device: {validDeviceIP}")
-                    shRunOut = sshAccess.send_command(shRun)
-                    print(f"INFO: {shRun} taken for device: {validDeviceIP}")
-                    authLog.info(f"Automation successfully ran the command: {shRun}")
-                    file.write(f"{shRunOut}")
+                    # with open(f"{validDeviceIP}_showRun.txt", "a") as file:
+                    #     file.write(f"User {username} connected to device IP {validDeviceIP}\n\n")
+                    #     authLog.info(f"User {username} is now running commands at: {validDeviceIP}")
+                    #     print(f"INFO: Taking a {shCommand} for device: {validDeviceIP}")
+                    #     print(f"INFO: {shCommand} taken for device: {validDeviceIP}")
+                    #     authLog.info(f"Automation successfully ran the command: {shCommand}")
+                    #     file.write(f"{shCommandOut}")
 
+                    print("Outputs and files successfully created.\n")
+                    print("For any erros or logs please check authLog.txt\n")
+
+                except Exception as error:
+                    print(f"ERROR: An error occurred: {error}\n", traceback.format_exc())
+                    authLog.error(f"User {username} connected to {validDeviceIP} got an error: {error}")
+                    authLog.error(traceback.format_exc(),"\n")
+                    failedDevices(username,validDeviceIP,error)
+                    
         except Exception as error:
-            print(f"An error occurred: {error}\n", traceback.format_exc())
+            print(f"ERROR: An error occurred: {error}\n", traceback.format_exc())
             authLog.error(f"User {username} connected to {validDeviceIP} got an error: {error}")
-            authLog.debug(traceback.format_exc(),"\n")
-            with open(f"failedDevices.txt","a") as failedDevices:
-                failedDevices.write(f"User {username} connected to {validDeviceIP} got an error.\n")
-        
-        finally:
-            print("Outputs and files successfully created.\n")
-            print("For any erros or logs please check authLog.txt\n")
+            authLog.error(traceback.format_exc(),"\n")
+            failedDevices(username,validDeviceIP,error)   

@@ -1,12 +1,17 @@
-from auth import *
-from strings import *
-from functions import *
-from commandsCLI import *
-from log import *
+from utils import mkdir
+
+
 import os
 
 def main():
+    mkdir()
+    from strings import greetingString, menuString, inputErrorString
     greetingString()
+    from auth import Auth
+    from functions import checkIsDigit
+    from commandsCLI import showCommands
+    from log import authLog
+    
     validIPs, username, netDevice = Auth()
 
     while True:
@@ -15,7 +20,8 @@ def main():
         if checkIsDigit(selection):
             if selection == "1":
                 # This option will take a show run
-                showRun(validIPs, username, netDevice)
+                shCommand = input(f"Please input the complete show command to run:")
+                showCommands(validIPs, username, netDevice, shCommand)
             if selection == "2":
                 authLog.info(f"User {username} disconnected from the devices {validIPs}")
                 authLog.info(f"User {username} logged out from the program.")

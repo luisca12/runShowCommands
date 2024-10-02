@@ -1,34 +1,54 @@
 import logging
 
-# Configure logging for authLog.txt
-authLog = logging.getLogger('authLog')
-authLog.setLevel(logging.DEBUG)
-authHangler = logging.FileHandler('authLog.txt')
-authHangler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
-authLog.addHandler(authHangler)
+import logging
+import logging.config
 
-# Configure logging for configChangesLog.txt
-configChangeLog = logging.getLogger('configChangeLog')
-configChangeLog.setLevel(logging.INFO)
-configHandler = logging.FileHandler('configChangesLog.txt')
-configHandler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
-configChangeLog.addHandler(configHandler)
+logConfiguration = {
+    'version': 1,
+    'loggers': {
+        'debugLog': {
+            'level': 'DEBUG',
+            'handlers': ['debugHandler']
+        },
+        'errorLog': {
+            'level': 'ERROR',
+            'handlers': ['errorHandler']
+        },
+        'infoLog': {
+            'level': 'INFO',
+            'handlers': ['infoHandler']
+        },
+    },
+    'handlers': {
+        'debugHandler' : {
+            'class': 'logging.FileHandler',
+            'filename': 'logs/systemLogs.txt',
+            'level': 'DEBUG',
+            'formatter': 'completeFormat'
+        },
+        'errorHandler' : {
+            'class': 'logging.FileHandler',
+            'filename': 'logs/systemLogs.txt',
+            'level': 'ERROR',
+            'formatter' : 'logFormat'
+        },
+        'infoHandler' : {
+            'class': 'logging.FileHandler',
+            'filename': 'logs/systemLogs.txt',
+            'level': 'INFO',
+            'formatter' : 'logFormat'
+        },
+    },
+    'formatters': {
+        'logFormat': {
+            'format' : "%(asctime)s - %(levelname)s - %(message)s"
+        },
+        'completeFormat': {
+            'format' : "%(asctime)s - %(levelname)s - %(message)s - %(pathname)s - %(module)s - %(lineno)d - %(process)d - %(thread)d"
+        },
+    }
+}
 
-# Configure logging for invalidIPLog.txt
-invalidIPLog = logging.getLogger('invalidIPLog')
-invalidIPLog.setLevel(logging.INFO)
-invalidIPHandler = logging.FileHandler('invalidIPLog.txt')
-invalidIPHandler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
-invalidIPLog.addHandler(invalidIPHandler)
-
-# Configure Logging for Netmiko
-# No longer needed !!!!!
-# netmikoLogger = logging.getLogger("netmiko")
-# netmikoLogger.setLevel(logging.DEBUG)
-# netmikoHandler = logging.FileHandler('netmikoLog.txt')
-# netmikoHandler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
-# netmikoLogger.addHandler(netmikoHandler)
-
-# Usage Example
-# authLog.info('This is a message for auth_log.txt')
-# configChangeLog.info('This is a message for config_Changes_Log.txt')
+logging.config.dictConfig(logConfiguration)
+authLog = logging.getLogger('infoLog')
+invalidIPLog = logging.getLogger('errorLog')

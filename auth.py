@@ -48,6 +48,7 @@ def Auth():
                 authLog.error(traceback.format_exc())
             
             except Exception as error:
+                print("File not found. Please check the file path and try again. Only .csv allowed")
                 authLog.error(f"Error when trying to read the IPs from the CSV file, error message: {error}")
                 authLog.debug(traceback.format_exc())
 

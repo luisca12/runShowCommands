@@ -4,6 +4,7 @@ from netmiko.exceptions import NetMikoAuthenticationException, NetMikoTimeoutExc
 import socket
 import getpass
 import csv
+import re
 import traceback
 
 def checkIsDigit(input_str):
@@ -69,7 +70,7 @@ def validateIP(deviceIP):
     authLog.error(traceback.format_exc())
     print(f"ERROR: Invalid IP address or hostname: {hostnameStr}")
 
-    with open('invalidDestinations.csv', mode='a', newline='') as file:
+    with open('Devices unreachable.csv', mode='a', newline='') as file:
         writer = csv.writer(file)
         writer.writerow([hostnameStr])
     
@@ -123,7 +124,7 @@ def checkYNInput(stringInput):
 def failedDevices(username,validDeviceIP="",error=""):
     authLog.error(f"Device: {validDeviceIP} had an error")
     authLog.error(traceback.format_exc())
-    with open(f"Outputs/failedDevices.txt","a") as failedDevices:
+    with open(f"Outputs/Devices with errors.txt","a") as failedDevices:
         failedDevices.write(f"User {username} connected to {validDeviceIP} got an error:\n{error}.\n")
 
 def logInCSV(validDeviceIP, filename=""):
@@ -133,3 +134,8 @@ def logInCSV(validDeviceIP, filename=""):
         writer = csv.writer(file)
         writer.writerow([validDeviceIP])
         authLog.info(f"Appended device: {validDeviceIP} to file {filename}")
+
+def filterFilename(filename):
+    # Replace any character that is not alphanumeric, underscore, hyphen, space, forward slash, or vertical bar
+    filename = re.sub(r'[|]', '_', filename)
+    return re.sub(r'[^a-zA-Z0-9_\- ]', '_', filename)

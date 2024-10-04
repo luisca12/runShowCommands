@@ -1,5 +1,4 @@
 import os
-from commandsCLI import shCommand
 
 def greetingString():
         os.system("CLS")
@@ -7,15 +6,15 @@ def greetingString():
         print("    Welcome to the automated show commands program ")
         print('  ------------------------------------------------- ')
 
-def menuString(deviceIP, username):
+def menuString(deviceIP, username, shCommand):
         os.system("CLS")
         print(f"Connected to: {deviceIP} as {username}\n")
         print('  -------------------------------------------------------------- ')
         print('\t\tMenu - Please choose an option')
         print('\t\t  Only numbers are accepted')
         print('  -------------------------------------------------------------- ')
-        print('  >\t\t1. To run the following commands:\t       <\n')
-        print(f'\t{shCommand}    ')      
+        print('  >\t\t1. To run the following commands:\t       <')
+        print(f'\t{shCommand}\n')      
         print('  >\t\t\t2. Exit the program\t\t       <')
         print('  -------------------------------------------------------------- \n')
 

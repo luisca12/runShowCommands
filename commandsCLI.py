@@ -1,6 +1,6 @@
 from netmiko import ConnectHandler
 from log import authLog
-from functions import failedDevices, logInCSV
+from functions import failedDevices, logInCSV, filterFilename
 
 import traceback
 import os
@@ -38,18 +38,23 @@ def showCommands(validIPs, username, netDevice, shCommand):
                     shHostnameOut = shHostnameOut.split(' ')[1]
                     shHostnameOut = shHostnameOut + "#"
 
+                    authLog.info(f"Command input by the user:{username}, command:{shCommand}")
+                    print(f"INFO: Running command:{shCommand}, on device {validDeviceIP}")
                     shCommandOut = sshAccess.send_command(shCommand)
+                    authLog.info(f"Automation successfully run the command: {shCommand} on device: {validDeviceIP}")
+                    authLog.info(f"{shHostnameOut}{shCommand}\n{shCommandOut}")
+                    print(f"INFO: Command successfully executed\n{shHostnameOut}{shCommand}\n{shCommandOut}")
 
-                    # with open(f"{validDeviceIP}_showRun.txt", "a") as file:
-                    #     file.write(f"User {username} connected to device IP {validDeviceIP}\n\n")
-                    #     authLog.info(f"User {username} is now running commands at: {validDeviceIP}")
-                    #     print(f"INFO: Taking a {shCommand} for device: {validDeviceIP}")
-                    #     print(f"INFO: {shCommand} taken for device: {validDeviceIP}")
-                    #     authLog.info(f"Automation successfully ran the command: {shCommand}")
-                    #     file.write(f"{shCommandOut}")
+                    filename = filterFilename(shCommand)
+                    authLog.info(f"This is the filename:{filename}")
 
-                    print("Outputs and files successfully created.\n")
-                    print("For any erros or logs please check authLog.txt\n")
+                    with open(f"Outputs/{filename} for device {validDeviceIP}.txt", "a") as file:
+                        file.write(f"User {username} connected to device IP {validDeviceIP}\n\n")
+                        file.write(f"{shHostnameOut}{shCommand}\n{shCommandOut}")
+                        authLog.info(f"File:{file} successfully created")
+
+                    print("INFO: Outputs and files successfully created.")
+                    print("INFO: For any erros or logs please check authLog.txt in logs")
 
                 except Exception as error:
                     print(f"ERROR: An error occurred: {error}\n", traceback.format_exc())
